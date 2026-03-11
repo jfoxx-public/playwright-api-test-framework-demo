@@ -34,6 +34,7 @@ npm install
 
 ```
 cd resources/pets-demo
+npm install
 node app.js
 ```
 
@@ -42,6 +43,14 @@ You should see an output similar to:
 ```
 Server is running on http://localhost:3000
 ```
+
+### Service URL
+
+http://localhost:3000
+
+### Swagger API Documentation
+
+http://localhost:3000/api-docs
 
 ## 4) Run the test scenarios
 
