@@ -7,7 +7,8 @@ playwright/.cache/
 playwright/.auth/
 resources/pets-demo/test-results/
 
+logs/
 *.zip
 notes.txt
-logs/
 PetsDemo.postman_collection.json
+pets.json
