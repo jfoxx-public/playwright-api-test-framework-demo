@@ -1,9 +1,12 @@
 {
-  "name": "udemy_api_testing",
+  "name": "api_testing",
   "version": "1.0.0",
   "description": "",
   "main": "index.js",
-  "scripts": {},
+  "scripts": {
+    "start:api": "cd resources/pets-demo && npm install && node app.js",
+    "test": "playwright test"
+  },
   "keywords": [],
   "author": "",
   "license": "ISC",
