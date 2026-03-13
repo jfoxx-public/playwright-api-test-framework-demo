@@ -3,6 +3,7 @@ const bodyParser = require('body-parser');
 const jwt = require('jsonwebtoken');
 const basicAuth = require('basic-auth');
 const fs = require('fs');
+const path = require('path');
 const swaggerUi = require('swagger-ui-express');
 const swaggerJsdoc = require('swagger-jsdoc');
 
@@ -140,15 +141,33 @@ app.post('/login', (req, res) => {
 });
 
 // Helper functions to read and write to the JSON file
+//>const readPetsFromFile = () => {
+//>  const data = fs.readFileSync('pets.json');
+//>  return JSON.parse(data);
+//>};
+//>
+//>const writePetsToFile = (pets) => {
+//>  fs.writeFileSync('pets.json', JSON.stringify(pets, null, 2));
+//>};
+// Helper functions to read and write to the JSON file
+
+const PETS_FILE = path.join(__dirname, 'pets.json');
+
+const ensurePetsFileExists = () => {
+  if (!fs.existsSync(PETS_FILE)) {
+    fs.writeFileSync(PETS_FILE, JSON.stringify([], null, 2));
+  }
+};
+
 const readPetsFromFile = () => {
-  const data = fs.readFileSync('pets.json');
+  ensurePetsFileExists();
+  const data = fs.readFileSync(PETS_FILE, 'utf-8');
   return JSON.parse(data);
 };
 
 const writePetsToFile = (pets) => {
-  fs.writeFileSync('pets.json', JSON.stringify(pets, null, 2));
+  fs.writeFileSync(PETS_FILE, JSON.stringify(pets, null, 2));
 };
-
 /**
  * @swagger
  * /pets:
@@ -739,6 +758,7 @@ const options = {
 const specs = swaggerJsdoc(options);
 app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(specs));
 
+ensurePetsFileExists();
 app.listen(port, () => {
   console.log(`Server is running on http://localhost:${port}`);
 });
