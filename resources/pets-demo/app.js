@@ -8,11 +8,13 @@ const swaggerUi = require('swagger-ui-express');
 const swaggerJsdoc = require('swagger-jsdoc');
 
 const app = express();
-const port = 3000;
+const port = process.env.PORT || 3000;
+const host = process.env.HOST || 'localhost';
 
-app.use(bodyParser.json());
+app.use(bodyParser.json({ strict: false }));
+app.use(bodyParser.urlencoded({ extended: true }));
 
-const secretKey = 'your_secret_key';
+const secretKey = process.env.SECRET_KEY || 'your_secret_key';
 
 const users = {
   admin: 'password123',
@@ -42,6 +44,11 @@ const authenticateBasic = (req, res, next) => {
 
   req.user = user;
   next();
+};
+
+// Wrapper to handle async errors in routes
+const asyncHandler = (fn) => (req, res, next) => {
+  return Promise.resolve(fn(req, res, next)).catch(next);
 };
 
 app.get('/', (req, res) => {
@@ -160,13 +167,23 @@ const ensurePetsFileExists = () => {
 };
 
 const readPetsFromFile = () => {
-  ensurePetsFileExists();
-  const data = fs.readFileSync(PETS_FILE, 'utf-8');
-  return JSON.parse(data);
+  try {
+    ensurePetsFileExists();
+    const data = fs.readFileSync(PETS_FILE, 'utf-8');
+    return JSON.parse(data);
+  } catch (error) {
+    console.error('Error reading pets file:', error.message);
+    return [];
+  }
 };
 
 const writePetsToFile = (pets) => {
-  fs.writeFileSync(PETS_FILE, JSON.stringify(pets, null, 2));
+  try {
+    fs.writeFileSync(PETS_FILE, JSON.stringify(pets, null, 2));
+  } catch (error) {
+    console.error('Error writing pets file:', error.message);
+    throw error;
+  }
 };
 /**
  * @swagger
@@ -230,7 +247,7 @@ const writePetsToFile = (pets) => {
  *                 data:
  *                   type: null
  */
-app.post('/pets', (req, res) => {
+app.post('/pets', asyncHandler(async (req, res) => {
   const { name, type, age } = req.body;
 
   if (!name || !type || !Number.isInteger(age)) {
@@ -251,7 +268,7 @@ app.post('/pets', (req, res) => {
     message: 'Pet created',
     data: newPet
   });
-});
+}));
 
 /**
  * @swagger
@@ -284,14 +301,14 @@ app.post('/pets', (req, res) => {
  *                       age:
  *                         type: integer
  */
-app.get('/pets', (req, res) => {
+app.get('/pets', asyncHandler(async (req, res) => {
   const pets = readPetsFromFile();
   res.json({
     status: 'success',
     message: 'Pets retrieved',
     data: pets
   });
-});
+}));
 
 /**
  * @swagger
@@ -342,7 +359,7 @@ app.get('/pets', (req, res) => {
  *                 data:
  *                   type: null
  */
-app.get('/pets/:id', (req, res) => {
+app.get('/pets/:id', asyncHandler(async (req, res) => {
   const pets = readPetsFromFile();
   const pet = pets.find(p => p.id === parseInt(req.params.id, 10));
 
@@ -359,7 +376,7 @@ app.get('/pets/:id', (req, res) => {
     message: 'Pet found',
     data: pet
   });
-});
+}));
 
 /**
  * @swagger
@@ -440,7 +457,7 @@ app.get('/pets/:id', (req, res) => {
  *                 data:
  *                   type: null
  */
-app.put('/pets/:id', (req, res) => {
+app.put('/pets/:id', asyncHandler(async (req, res) => {
   const { name, type, age } = req.body;
   const pets = readPetsFromFile();
   const petIndex = pets.findIndex(p => p.id === parseInt(req.params.id, 10));
@@ -470,7 +487,7 @@ app.put('/pets/:id', (req, res) => {
     message: 'Pet updated',
     data: updatedPet
   });
-});
+}));
 
 /**
  * @swagger
@@ -512,7 +529,7 @@ app.put('/pets/:id', (req, res) => {
  *                 data:
  *                   type: null
  */
-app.delete('/pets/:id', (req, res) => {
+app.delete('/pets/:id', asyncHandler(async (req, res) => {
   const pets = readPetsFromFile();
   const petIndex = pets.findIndex(p => p.id === parseInt(req.params.id, 10));
 
@@ -532,7 +549,7 @@ app.delete('/pets/:id', (req, res) => {
     message: 'Pet deleted',
     data: null
   });
-});
+}));
 
 /**
  * @swagger
@@ -609,7 +626,7 @@ app.delete('/pets/:id', (req, res) => {
  *                 data:
  *                   type: null
  */
-app.patch('/pets/:id', (req, res) => {
+app.patch('/pets/:id', asyncHandler(async (req, res) => {
   const { name, type, age } = req.body;
   const pets = readPetsFromFile();
   const petIndex = pets.findIndex(p => p.id === parseInt(req.params.id, 10));
@@ -636,7 +653,7 @@ app.patch('/pets/:id', (req, res) => {
     message: 'Pet updated successfully',
     data: pet
   });
-});
+}));
 
 /* ENDPOINTS WITH AUTHORIZATION AND AUTHENTICATION */
 /**
@@ -701,7 +718,7 @@ app.patch('/pets/:id', (req, res) => {
  *                 data:
  *                   type: null
  */
-app.post('/protected/pets', authenticateToken, (req, res) => {
+app.post('/protected/pets', authenticateToken, asyncHandler(async (req, res) => {
   const { name, type, age } = req.body;
 
   if (!name || !type || !Number.isInteger(age)) {
@@ -722,7 +739,7 @@ app.post('/protected/pets', authenticateToken, (req, res) => {
     message: 'Pet created',
     data: newPet
   });
-});
+}));
 
 
 const options = {
@@ -735,7 +752,7 @@ const options = {
     },
     servers: [
       {
-        url: 'http://localhost:3000'
+        url: process.env.SERVER_URL || `http://localhost:${port}`
       }
     ],
     components: {
@@ -758,7 +775,26 @@ const options = {
 const specs = swaggerJsdoc(options);
 app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(specs));
 
+// 404 handler - must be before error handler
+app.use((req, res) => {
+  res.status(404).json({
+    status: 'error',
+    message: 'Endpoint not found',
+    data: null
+  });
+});
+
+// Global error handler
+app.use((err, req, res, next) => {
+  console.error('Error:', err.message);
+  res.status(500).json({
+    status: 'error',
+    message: 'Internal server error',
+    data: process.env.NODE_ENV === 'development' ? err.message : null
+  });
+});
+
 ensurePetsFileExists();
-app.listen(port, () => {
-  console.log(`Server is running on http://localhost:${port}`);
+app.listen(port, host, () => {
+  console.log(`\n✓ Server is running on http://${host}:${port}\n`);
 });
