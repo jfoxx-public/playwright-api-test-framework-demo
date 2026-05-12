@@ -3,7 +3,10 @@
   "version": "1.0.0",
   "description": "",
   "main": "index.js",
-  "scripts": {},
+  "scripts": {
+    "start:api": "cd resources/pets-demo && npm install && npm start",
+    "test": "playwright test"
+  },
   "keywords": [],
   "author": "",
   "license": "ISC",

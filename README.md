@@ -32,9 +32,16 @@ npm install
 
 ## 3) Run the REST API server
 
+### Option A: Run locally
 ```
 cd resources/pets-demo
-node app.js
+npm install
+npm start
+```
+
+### Option B: Run with Docker
+```
+docker compose up --build pets-demo
 ```
 
 You should see an output similar to:
@@ -42,6 +49,56 @@ You should see an output similar to:
 ```
 Server is running on http://localhost:3000
 ```
+
+### Service URL
+
+http://localhost:3000
+
+### Swagger Documentation
+
+http://localhost:3000/api-docs
+
+## 4) Run the tests
+
+### Run all tests
+```
+npx playwright test
+```
+
+### Run tests with specific environment
+```
+ENV=qa npx playwright test
+```
+
+### Run tests in headed mode (with browser UI)
+```
+npx playwright test --headed
+```
+
+### Generate and view HTML report
+```
+npx playwright show-report
+```
+
+### Run tests in UI mode
+```
+npx playwright test --ui
+```
+
+## Environment Configuration
+
+The framework supports multiple environments. Configure the target environment using the `ENV` environment variable:
+
+- `dev` (default): http://localhost:3000
+- `qa`: http://localhost:3001
+- `staging`: http://localhost:3002
+- `prod`: http://localhost:3003
+
+Create a `.env` file based on `.env.example` to set your preferred environment.
+
+### Swagger API Documentation
+
+http://localhost:3000/api-docs
 
 ## 4) Run the test scenarios
 
