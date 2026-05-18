@@ -6,6 +6,7 @@ export const BASE_URLS = {
   qa: 'http://localhost:3001',
   
 // Names of the services and internals assigned in qa-automation-infrastructure
+// Names of the services and internals assigned in qa-automation-infrastructure
   staging: 'http://api-staging:3000',
   prod: 'http://localhost:3003' 
 };
