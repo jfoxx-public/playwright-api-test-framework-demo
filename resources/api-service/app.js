@@ -8,8 +8,11 @@ const swaggerUi = require('swagger-ui-express');
 const swaggerJsdoc = require('swagger-jsdoc');
 
 const app = express();
-const port = process.env.PORT || 3000;
-const host = process.env.HOST || 'localhost';
+
+const port = process.env.PORT || 3002;
+const host = process.env.HOST || '0.0.0.0'; // 0.0..0.0 allows connections from other containers (Jenkins/Playwright)
+
+
 
 app.use(bodyParser.json({ strict: false }));
 app.use(bodyParser.urlencoded({ extended: true }));
