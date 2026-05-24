@@ -38,7 +38,7 @@ const usersForEachEnvironment = {
 };
 
 function resolveEnvironment(): Environment {
-  const env = process.env.ENV;
+  const env = process.env.ENV?.toLowerCase();
     
   if (env === 'dev' || env === 'staging' || env === 'prod' || env === 'qa') {
     return env;
@@ -46,5 +46,5 @@ function resolveEnvironment(): Environment {
   return 'qa';
 }
 
-const currentEnv = resolveEnvironment();
+export const currentEnv = resolveEnvironment();
 export const users = usersForEachEnvironment[currentEnv];

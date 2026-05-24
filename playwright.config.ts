@@ -1,4 +1,5 @@
 import { defineConfig, devices } from '@playwright/test';
+import { ENV, BASE_URLS } from './src/config/env';
 
 /**
  * Read environment variables from file.
@@ -26,7 +27,7 @@ export default defineConfig({
   /* Shared settings for all the projects below. See https://playwright.dev/docs/api/class-testoptions. */
   use: {
     /* Base URL to use in actions like `await page.goto('')`. */
-    baseURL: process.env.baseURL ? process.env.baseURL : 'http://localhost:3000',
+    baseURL: BASE_URLS[ENV],
 
     /* Collect trace when retrying the failed test. See https://playwright.dev/docs/trace-viewer */
     trace: 'on-first-retry',
