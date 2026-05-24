@@ -4,7 +4,7 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "start:api": "cd resources/pets-demo && npm install && npm start",
+    "start:api": "cd resources/api-service && npm install && npm start",
     "test": "playwright test"
   },
   "keywords": [],
